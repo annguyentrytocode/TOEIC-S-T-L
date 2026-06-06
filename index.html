@@ -3,142 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOEIC S-T&L Dashboard</title>
+    <title>TOEIC S-T&L</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        .hidden-page { display: none !important; }
-        .review-card { border-left: 4px solid #F56565; }
+        /* Tích hợp font Google Sans (Fallback sang Be Vietnam Pro để hiển thị tiếng Việt chuẩn) */
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap');
         
-        /* Gradient buttons */
-        .btn-test { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
-        .btn-learn { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
-        .btn-micro { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
-        .btn-extreme { background: linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%); }
-        .btn-vocab { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
-        .btn-grammar { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
+        @font-face {
+            font-family: 'Google Sans';
+            src: local('Google Sans'), local('GoogleSans-Regular');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Google Sans';
+            src: local('Google Sans Medium'), local('GoogleSans-Medium');
+            font-weight: 500;
+        }
+        @font-face {
+            font-family: 'Google Sans';
+            src: local('Google Sans Bold'), local('GoogleSans-Bold');
+            font-weight: 700;
+        }
+
+        body { 
+            font-family: 'Google Sans', 'Be Vietnam Pro', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            background-color: #F3F4F6; /* Nền xám nhạt bao quanh mô phỏng điện thoại */
+        }
+        
+        .app-container {
+            background-color: #FFFFFF;
+            min-height: 100vh;
+            max-width: 420px; /* Chuẩn kích thước mobile */
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hidden-page { display: none !important; }
+        
+        /* Bố cục cong đặc trưng từ thiết kế Figma */
+        .curved-header {
+            background-color: #5B73E8; /* Màu xanh chủ đạo */
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            color: white;
+            padding: 50px 20px 40px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 10px 20px rgba(91, 115, 232, 0.2);
+        }
+
+        /* Nút menu chính */
+        .menu-btn {
+            background: white;
+            border: 1px solid #E5E7EB;
+            color: #5B73E8;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.125rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .menu-btn:active { transform: scale(0.98); }
+
+        /* Nút đáp án */
+        .option-btn {
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #1F2937;
+            background: white;
+            transition: all 0.2s;
+        }
+        
+        .option-correct { border-color: #10B981; color: #10B981; background-color: #ECFDF5; }
+        .option-incorrect { border-color: #EF4444; color: #EF4444; background-color: #FEF2F2; }
+        
+        /* Progress bar mỏng ở trên cùng */
+        .progress-container { width: 100%; background-color: #E5E7EB; height: 4px; }
+        .progress-fill { background-color: #5B73E8; height: 100%; transition: width 0.3s ease; }
+
+        /* Review Card */
+        .review-card { border-left: 4px solid #F56565; }
     </style>
 </head>
-<body class="bg-[#1A202C] text-white font-sans min-h-screen">
+<body>
 
-    <div id="home-page" class="w-full max-w-md mx-auto p-6 flex flex-col items-center justify-center min-h-screen relative">
-        <div class="text-4xl text-blue-400 mb-2 font-bold">✦</div>
-        <h1 class="text-6xl font-bold mb-2 text-center leading-tight">TOEIC<br><span class="text-4xl text-gray-300">S-T&L</span></h1>
-        <h2 class="text-sm font-medium mb-10 text-gray-400 text-center uppercase tracking-widest">Self Test & Learn</h2>
+    <div id="home-page" class="app-container">
+        <div class="curved-header flex flex-col items-center justify-center min-h-[35vh]">
+            <div class="text-3xl mb-1">✦</div>
+            <h1 class="text-5xl font-bold tracking-tight mb-2">TOEIC</h1>
+            <p class="text-sm opacity-90 font-medium">Self Testing & Learning</p>
+        </div>
         
-        <div id="main-nav" class="w-full flex flex-col gap-5 w-full transition-all">
-            <button onclick="showMenu('test-menu')" class="btn-test text-white w-full py-6 rounded-2xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
-                <span class="font-bold text-3xl tracking-wide">TEST</span>
-                <span class="text-sm text-red-200 mt-1">Đo lường năng lực</span>
-            </button>
+        <div class="flex-1 px-6 py-10 flex flex-col items-center">
             
-            <button onclick="showMenu('learn-menu')" class="btn-learn text-white w-full py-6 rounded-2xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
-                <span class="font-bold text-3xl tracking-wide">LEARN</span>
-                <span class="text-sm text-blue-200 mt-1">Củng cố kiến thức</span>
-            </button>
-        </div>
-
-        <div id="test-menu" class="hidden-page w-full flex flex-col gap-4 transition-all">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xl font-bold text-gray-300">Chọn chế độ Test</h3>
-                <button onclick="showMenu('main-nav')" class="text-sm text-gray-500 hover:text-white">← Quay lại</button>
+            <div id="main-nav" class="w-full flex flex-col gap-4 mt-8">
+                <button onclick="showMenu('test-menu')" class="menu-btn">TESTING</button>
+                <button onclick="showMenu('learn-menu')" class="menu-btn">LEARNING</button>
             </div>
-            <button onclick="startApp('test', 'micro')" class="btn-micro text-white w-full py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
-                <span class="font-bold text-xl mb-1">Micro-Testing</span>
-                <span class="text-xs text-yellow-100">50 Qs | 15 Mins | Daily Sprint</span>
-            </button>
-            <button onclick="startApp('test', 'extreme')" class="btn-extreme text-white w-full py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
-                <span class="font-bold text-xl mb-1">Extreme Mock</span>
-                <span class="text-xs text-red-200">200 Qs | 100 Mins | Endurance</span>
-            </button>
-        </div>
 
-        <div id="learn-menu" class="hidden-page w-full flex flex-col gap-4 transition-all">
-            <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xl font-bold text-gray-300">Chọn chủ đề Learn</h3>
-                <button onclick="showMenu('main-nav')" class="text-sm text-gray-500 hover:text-white">← Quay lại</button>
+            <div id="test-menu" class="hidden-page w-full flex flex-col gap-4 w-full mt-4">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center mb-2">Chọn Kiểu Test</h3>
+                <button onclick="startApp('test', 'micro')" class="menu-btn !text-gray-700 hover:!text-[#5B73E8]">Micro - Testing</button>
+                <button onclick="startApp('test', 'extreme')" class="menu-btn !text-gray-700 hover:!text-[#5B73E8]">Extreme Mock</button>
+                <button onclick="showMenu('main-nav')" class="mt-4 text-sm text-gray-400 font-medium">← Quay lại</button>
             </div>
-            <button onclick="startApp('learn', 'vocab')" class="btn-vocab text-white w-full py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
-                <span class="font-bold text-xl mb-1">Vocab Focus</span>
-                <span class="text-xs text-green-100">50 Từ vựng | No Time Limit</span>
-            </button>
-            <button onclick="startApp('learn', 'grammar')" class="btn-grammar text-white w-full py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
-                <span class="font-bold text-xl mb-1">Grammar Focus</span>
-                <span class="text-xs text-purple-200">50 Ngữ pháp | No Time Limit</span>
-            </button>
-        </div>
-        
-        <div id="loading-indicator" class="absolute bottom-6 text-xs opacity-80 text-center px-4 text-gray-500 w-full left-0">Đang khởi tạo hệ thống...</div>
-    </div>
 
-    <div id="quiz-page" class="hidden-page w-full max-w-md mx-auto bg-white text-black min-h-screen p-6 flex flex-col relative">
-        <div class="flex justify-between items-center mb-4">
-            <button onclick="goHome()" class="text-2xl text-gray-500 hover:text-black">←</button>
-            <div id="timer-display" class="font-bold px-4 py-1 rounded-full transition-colors hidden">TIME 00:00</div>
-            <div id="question-counter" class="font-bold text-gray-700">Q 1/50</div>
-        </div>
-
-        <div class="w-full bg-gray-200 rounded-full h-1.5 mb-6">
-            <div id="progress-bar" class="h-1.5 rounded-full transition-all duration-100" style="width: 0%"></div>
-        </div>
-
-        <div id="question-tag" class="text-xs font-bold px-3 py-1 bg-gray-100 rounded-full w-max mb-4 text-gray-500 uppercase tracking-wider"></div>
-
-        <div class="mb-8 min-h-[120px]">
-            <p id="question-text" class="text-xl font-medium leading-relaxed"></p>
-        </div>
-
-        <div id="options-container" class="flex flex-col gap-3 mb-6"></div>
-        <div id="feedback-area" class="h-12 flex items-center justify-center font-bold rounded-lg text-white hidden mb-4 transition-colors"></div>
-        
-        <div class="flex justify-between items-center mt-auto pb-4">
-            <div class="flex gap-2" id="support-tools">
-                <button id="btn-5050" onclick="use5050()" class="w-12 h-12 rounded-full border-2 border-gray-300 text-gray-500 font-bold flex items-center justify-center hover:bg-gray-100 transition-colors">50%</button>
-                <button id="btn-suggest" onclick="showHint()" class="px-4 py-2 rounded-full border-2 border-gray-300 text-gray-500 font-bold hover:bg-gray-100 transition-colors">Suggest</button>
+            <div id="learn-menu" class="hidden-page w-full flex flex-col gap-4 w-full mt-4">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center mb-2">Chọn Kiểu Học</h3>
+                <button onclick="startApp('learn', 'vocab')" class="menu-btn !text-gray-700 hover:!text-[#5B73E8]">Vocabulary Focus</button>
+                <button onclick="startApp('learn', 'grammar')" class="menu-btn !text-gray-700 hover:!text-[#5B73E8]">Grammar Focus</button>
+                <button onclick="showMenu('main-nav')" class="mt-4 text-sm text-gray-400 font-medium">← Quay lại</button>
             </div>
-            <button id="btn-next" onclick="nextQuestion()" class="bg-gray-800 text-white px-8 py-3 rounded-full font-bold hidden hover:bg-black transition-colors ml-auto">Tiếp tục</button>
-        </div>
 
-        <div id="hint-text" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-gray-700 hidden"></div>
-    </div>
-
-    <div id="result-page" class="hidden-page w-full max-w-md mx-auto bg-[#1A202C] p-6 flex flex-col items-center min-h-screen overflow-y-auto">
-        <h2 class="text-2xl font-bold mt-4 mb-2 text-white">Báo cáo năng lực</h2>
-        
-        <div class="w-40 h-40 border-8 rounded-full flex flex-col items-center justify-center mb-4 relative" id="score-circle">
-            <span id="score-label" class="text-gray-400 text-xs font-bold tracking-widest uppercase mb-1">Kết quả</span>
-            <span id="final-score" class="text-4xl font-bold text-white">0</span>
-        </div>
-
-        <div id="tier-tag" class="px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide hidden"></div>
-
-        <div id="detailed-feedback-container" class="w-full bg-[#2D3748] rounded-xl p-5 mb-6 shadow-lg border border-gray-700 hidden">
-            <p id="detailed-feedback" class="text-gray-300 text-sm leading-relaxed text-justify"></p>
-        </div>
-        
-        <div id="stats-breakdown" class="w-full grid grid-cols-2 gap-4 mb-8 text-center hidden">
-            <div class="bg-[#2D3748] p-3 rounded-lg">
-                <p class="text-xs text-gray-400 uppercase">Từ vựng</p>
-                <p id="stat-vocab" class="text-lg font-bold text-blue-400">0/0</p>
-            </div>
-            <div class="bg-[#2D3748] p-3 rounded-lg">
-                <p class="text-xs text-gray-400 uppercase">Ngữ pháp</p>
-                <p id="stat-grammar" class="text-lg font-bold text-green-400">0/0</p>
-            </div>
-        </div>
-
-        <div class="w-full flex flex-col gap-3 mt-auto pb-6">
-            <button id="btn-review" onclick="showReview()" class="bg-yellow-500 text-black w-full py-3 rounded-xl font-bold text-lg hover:bg-yellow-400 transition-colors hidden">Review câu sai</button>
-            <button onclick="goHome()" class="bg-transparent border-2 border-gray-500 text-gray-300 w-full py-3 rounded-xl font-bold text-lg hover:bg-gray-700 transition-colors">Về Trang chủ</button>
+            <div id="loading-indicator" class="mt-auto text-xs text-gray-400">Đang khởi tạo hệ thống...</div>
         </div>
     </div>
 
-    <div id="review-page" class="hidden-page w-full max-w-md mx-auto bg-[#F7FAFC] text-black min-h-screen flex flex-col relative">
-        <div class="sticky top-0 bg-white border-b shadow-sm p-4 flex items-center justify-between z-10">
-            <h2 class="font-bold text-lg text-gray-800">Review Câu Sai</h2>
-            <button onclick="closeReview()" class="text-gray-500 hover:text-black font-bold">Đóng ✕</button>
+    <div id="quiz-page" class="hidden-page app-container bg-white">
+        
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <button onclick="goHome()" class="text-xl text-gray-400 hover:text-gray-700 px-2">←</button>
+            <div id="timer-display" class="font-bold text-[#5B73E8] bg-blue-50 px-3 py-1 rounded-full text-sm hidden">TIME 00:00</div>
+            <div id="question-counter" class="font-bold text-gray-700 text-sm">Question 1/100</div>
         </div>
-        <div id="review-container" class="p-4 flex flex-col gap-6 pb-20"></div>
+
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-fill" style="width: 0%"></div>
+        </div>
+
+        <div class="p-6 flex flex-col flex-1 overflow-y-auto">
+            <div id="question-tag" class="text-[10px] font-bold px-3 py-1 bg-gray-100 text-gray-500 rounded-full w-max mb-6 uppercase tracking-wider">TỪ VỰNG</div>
+
+            <div class="mb-8 min-h-[100px]">
+                <p id="question-text" class="text-[1.1rem] font-medium leading-relaxed text-gray-800"></p>
+            </div>
+
+            <div class="text-xs font-bold text-gray-400 mb-3">Choosing answer</div>
+            <div id="options-container" class="flex flex-col gap-3 mb-6"></div>
+
+            <button id="feedback-area" class="w-full py-4 rounded-xl font-bold text-white hidden mb-4 transition-colors pointer-events-none"></button>
+            
+            <div id="hint-text" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-gray-700 hidden"></div>
+
+            <div class="flex justify-between items-center mt-auto pt-4">
+                <div class="flex gap-2">
+                    <button id="btn-5050" onclick="use5050()" class="w-12 h-12 rounded-full border border-gray-300 text-gray-500 font-bold flex items-center justify-center hover:bg-gray-50 transition-colors">50%</button>
+                    <button id="btn-suggest" onclick="showHint()" class="px-5 py-2 rounded-full border border-gray-300 text-gray-600 font-bold hover:bg-gray-50 transition-colors">Suggest</button>
+                </div>
+                <button id="btn-next" onclick="nextQuestion()" class="bg-[#1A202C] text-white px-8 py-3 rounded-full font-bold hidden hover:bg-black transition-colors shadow-md">Tiếp tục</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-page" class="hidden-page app-container bg-[#F9FAFB]">
+        <div class="curved-header flex flex-col items-center justify-center min-h-[25vh]">
+            <h2 class="text-xl font-bold opacity-90 tracking-widest mb-1 uppercase" id="score-label">TỔNG ĐIỂM</h2>
+            <h1 id="final-score" class="text-6xl font-bold">0</h1>
+        </div>
+
+        <div class="flex-1 p-6 flex flex-col items-center">
+            
+            <div id="tier-tag" class="px-6 py-2 rounded-full font-bold text-sm mb-6 tracking-wide hidden text-white mt-4 shadow-sm"></div>
+
+            <div id="detailed-feedback-container" class="w-full bg-white rounded-2xl p-5 mb-6 shadow-sm border border-gray-100 hidden">
+                <p id="detailed-feedback" class="text-gray-600 text-sm leading-relaxed text-center font-medium"></p>
+            </div>
+            
+            <div id="stats-breakdown" class="w-full flex gap-4 mb-8 text-center hidden">
+                <div class="bg-white p-4 rounded-2xl flex-1 border border-gray-100 shadow-sm">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Từ vựng</p>
+                    <p id="stat-vocab" class="text-xl font-bold text-[#5B73E8]">0/0</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl flex-1 border border-gray-100 shadow-sm">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Ngữ pháp</p>
+                    <p id="stat-grammar" class="text-xl font-bold text-[#10B981]">0/0</p>
+                </div>
+            </div>
+
+            <div class="w-full flex flex-col gap-3 mt-auto">
+                <button id="btn-review" onclick="showReview()" class="bg-[#5B73E8] text-white w-full py-4 rounded-xl font-bold text-[1rem] hover:opacity-90 transition-opacity shadow-md hidden">Review câu sai</button>
+                <button onclick="goHome()" class="bg-white border border-gray-200 text-gray-600 w-full py-4 rounded-xl font-bold text-[1rem] hover:bg-gray-50 transition-colors shadow-sm">Về trang chủ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="review-page" class="hidden-page app-container bg-[#F9FAFB]">
+        <div class="bg-white border-b border-gray-100 p-4 flex items-center justify-between z-10 shadow-sm">
+            <h2 class="font-bold text-[1rem] text-gray-800">Review Câu Sai</h2>
+            <button onclick="closeReview()" class="text-[#5B73E8] font-bold text-sm bg-blue-50 px-3 py-1 rounded-full">Đóng</button>
+        </div>
+        <div id="review-container" class="p-4 flex flex-col gap-4 overflow-y-auto flex-1 pb-10"></div>
     </div>
 
     <script>
@@ -148,10 +216,7 @@
         let wrongAnswersData = [];
         let currentIndex = 0;
         
-        let scoreData = {
-            vocab: { correct: 0, total: 0 },
-            grammar: { correct: 0, total: 0 }
-        };
+        let scoreData = { vocab: { correct: 0, total: 0 }, grammar: { correct: 0, total: 0 } };
         
         let appCategory = '';
         let appMode = '';
@@ -169,12 +234,11 @@
                 allGrammar = parseRobustData(grammarData, 'grammar');
                 let indicator = document.getElementById('loading-indicator');
                 if (allVocab.length > 0 && allGrammar.length > 0) {
-                    indicator.innerText = `Database Ready: ${allVocab.length} Vocab | ${allGrammar.length} Grammar`;
-                    indicator.classList.add('text-green-500');
-                    indicator.classList.remove('text-gray-500');
+                    indicator.innerText = `Hệ thống sẵn sàng: ${allVocab.length} Từ vựng | ${allGrammar.length} Ngữ pháp`;
+                    indicator.classList.add('text-[#10B981]');
                 } else {
-                    indicator.innerText = `Cảnh báo: Thiếu dữ liệu. Kiểm tra lại vocab.json / gramar.json`;
-                    indicator.classList.add('text-red-500');
+                    indicator.innerText = `Lỗi dữ liệu. Kiểm tra lại vocab.json / gramar.json`;
+                    indicator.classList.add('text-[#EF4444]');
                 }
             });
         };
@@ -212,10 +276,7 @@
         }
 
         function startApp(category, mode) {
-            if (allVocab.length === 0 && allGrammar.length === 0) {
-                alert("Dữ liệu chưa tải xong. Hãy đợi một chút hoặc kiểm tra tên file!");
-                return;
-            }
+            if (allVocab.length === 0 && allGrammar.length === 0) return;
 
             appCategory = category;
             appMode = mode;
@@ -229,36 +290,23 @@
             let gCount = 0;
             
             let timerDisplay = document.getElementById('timer-display');
-            let supportTools = document.getElementById('support-tools');
-            let progressBar = document.getElementById('progress-bar');
             
             if (category === 'test') {
                 timerDisplay.classList.remove('hidden');
-                supportTools.classList.add('hidden');
+                document.getElementById('btn-next').classList.remove('ml-auto'); 
                 document.getElementById('btn-next').classList.add('w-full');
                 
-                if (mode === 'micro') {
-                    vCount = 25; gCount = 25;
-                    timeLimit = 15 * 60;
-                    progressBar.className = "bg-yellow-500 h-1.5 rounded-full transition-all duration-100";
-                    timerDisplay.className = "font-bold text-yellow-600 bg-yellow-100 px-4 py-1 rounded-full";
-                } else if (mode === 'extreme') {
-                    vCount = 100; gCount = 100;
-                    timeLimit = 100 * 60;
-                    progressBar.className = "bg-red-500 h-1.5 rounded-full transition-all duration-100";
-                    timerDisplay.className = "font-bold text-red-600 bg-red-100 px-4 py-1 rounded-full";
-                }
+                if (mode === 'micro') { vCount = 25; gCount = 25; timeLimit = 15 * 60; } 
+                else if (mode === 'extreme') { vCount = 100; gCount = 100; timeLimit = 100 * 60; }
+                
+                timerDisplay.className = "font-bold text-[#5B73E8] bg-blue-50 px-3 py-1 rounded-full text-sm";
             } else if (category === 'learn') {
                 timerDisplay.classList.add('hidden');
-                supportTools.classList.remove('hidden');
+                document.getElementById('btn-next').classList.add('ml-auto');
                 document.getElementById('btn-next').classList.remove('w-full');
-                progressBar.className = "bg-blue-500 h-1.5 rounded-full transition-all duration-100";
                 
-                if (mode === 'vocab') {
-                    vCount = 50; gCount = 0;
-                } else if (mode === 'grammar') {
-                    vCount = 0; gCount = 50;
-                }
+                if (mode === 'vocab') { vCount = 50; gCount = 0; } 
+                else if (mode === 'grammar') { vCount = 0; gCount = 50; }
             }
 
             let shuffledVocab = shuffle([...allVocab]);
@@ -266,12 +314,10 @@
             
             vCount = Math.min(vCount, shuffledVocab.length);
             gCount = Math.min(gCount, shuffledGrammar.length);
-            
             scoreData.vocab.total = vCount;
             scoreData.grammar.total = gCount;
 
             currentSessionQuestions = shuffle([...shuffledVocab.slice(0, vCount), ...shuffledGrammar.slice(0, gCount)]);
-
             if(currentSessionQuestions.length === 0) return;
 
             document.getElementById('home-page').classList.add('hidden-page');
@@ -287,22 +333,20 @@
             hasAnsweredCurrent = false;
             let q = currentSessionQuestions[currentIndex];
             
-            document.getElementById('question-counter').innerText = `Q ${currentIndex + 1}/${currentSessionQuestions.length}`;
+            document.getElementById('question-counter').innerText = `Question ${currentIndex + 1}/${currentSessionQuestions.length}`;
             let progress = ((currentIndex + 1) / currentSessionQuestions.length) * 100;
             document.getElementById('progress-bar').style.width = progress + "%";
             
             let tagEl = document.getElementById('question-tag');
-            tagEl.innerText = q._questionType === 'vocab' ? "Từ vựng" : "Ngữ pháp";
+            tagEl.innerText = q._questionType === 'vocab' ? "TỪ VỰNG" : "NGỮ PHÁP";
             
-            // Xử lý câu hỏi
             let questionKey = Object.keys(q).find(k => k.toLowerCase().includes('question') || k.toLowerCase().includes('cauhoi'));
             let rawQuestion = questionKey ? q[questionKey] : Object.values(q).find(v => typeof v === 'string' && v.includes('___'));
             let cleanQuestion = String(rawQuestion).replace(/^(Sample\s*)?Question\s*\d+:\s*/i, '');
             
             q._displayQuestion = cleanQuestion.replace(/[-_]{3,}/g, '_____'); 
-            document.getElementById('question-text').innerHTML = cleanQuestion.replace(/[-_]{3,}/g, '<span class="inline-block w-16 border-b-2 border-black"></span>');
+            document.getElementById('question-text').innerHTML = cleanQuestion.replace(/[-_]{3,}/g, '<span class="inline-block w-16 border-b-2 border-[#1F2937]"></span>');
             
-            // Lấy danh sách đáp án
             let validOptions = [];
             let excludeKeywords = ['question', 'correct', 'hint', 'answer', 'hướng dẫn', 'giải thích', 'câu', 'gợi', 'suggest', '_questiontype', 'explanation', '_displayquestion', '_displayhint'];
             
@@ -315,19 +359,15 @@
                     }
                 }
             }
-            
             let finalOptions = validOptions.length > 4 ? validOptions.sort((a, b) => a.keyOriginal.length - b.keyOriginal.length).slice(0, 4) : validOptions;
 
-            // XỬ LÝ LỖI LOGIC: TÌM CHÍNH XÁC ĐÁP ÁN ĐÚNG
             let correctKey = Object.keys(q).find(k => k.toLowerCase().includes('correct') || k.toLowerCase().includes('answer') || k.toLowerCase().includes('dapan') || k.toLowerCase().includes('đáp'));
             let correctKeyFromExcel = correctKey ? String(q[correctKey]).trim().toLowerCase() : "";
             let actualCorrectText = correctKeyFromExcel;
 
-            // Xử lý thông minh nếu người dùng chỉ nhập "A", "B", "C", "D" vào cột đáp án
             if (correctKeyFromExcel.length === 1 && ['a', 'b', 'c', 'd'].includes(correctKeyFromExcel)) {
                 for(let k in q) {
                     let cleanK = k.trim().toLowerCase();
-                    // Mapping "A" => "Option A", "Lựa chọn A", v.v.
                     if (cleanK === correctKeyFromExcel || cleanK === `option ${correctKeyFromExcel}` || cleanK.endsWith(` ${correctKeyFromExcel}`)) {
                         actualCorrectText = String(q[k]).trim().toLowerCase();
                         break;
@@ -335,21 +375,15 @@
                 }
             }
 
-            // Chốt trước dòng text hiển thị trên nút đúng để lưu vào Review
             let correctTextSaved = actualCorrectText;
             finalOptions.forEach(optObj => {
                 let cleanOptKey = optObj.keyOriginal.trim().toLowerCase();
                 let cleanOptText = optObj.text.toLowerCase();
-                if (cleanOptKey === correctKeyFromExcel || 
-                    cleanOptKey === `option ${correctKeyFromExcel}` || 
-                    cleanOptKey.endsWith(` ${correctKeyFromExcel}`) || 
-                    cleanOptText === correctKeyFromExcel || 
-                    cleanOptText === actualCorrectText) {
+                if (cleanOptKey === correctKeyFromExcel || cleanOptKey === `option ${correctKeyFromExcel}` || cleanOptKey.endsWith(` ${correctKeyFromExcel}`) || cleanOptText === correctKeyFromExcel || cleanOptText === actualCorrectText) {
                     correctTextSaved = optObj.text;
                 }
             });
 
-            // Render nút đáp án
             let optionsHtml = '';
             shuffle([...finalOptions]).forEach(optObj => {
                 let optText = optObj.text;
@@ -357,12 +391,7 @@
                 let cleanOptText = optText.toLowerCase();
                 let isThisBtnCorrect = false;
                 
-                // Thuật toán quét đối chiếu chính xác hoàn toàn
-                if (cleanOptKey === correctKeyFromExcel || 
-                    cleanOptKey === `option ${correctKeyFromExcel}` || 
-                    cleanOptKey.endsWith(` ${correctKeyFromExcel}`) || 
-                    cleanOptText === correctKeyFromExcel || 
-                    cleanOptText === actualCorrectText) {
+                if (cleanOptKey === correctKeyFromExcel || cleanOptKey === `option ${correctKeyFromExcel}` || cleanOptKey.endsWith(` ${correctKeyFromExcel}`) || cleanOptText === correctKeyFromExcel || cleanOptText === actualCorrectText) {
                     isThisBtnCorrect = true;
                 }
 
@@ -372,13 +401,12 @@
                 optionsHtml += `
                     <button onclick="selectAnswer(this, ${isThisBtnCorrect}, '${q._questionType}', '${safeOpt}', '${safeCorrectText}')" 
                             data-correct="${isThisBtnCorrect}" 
-                            class="option-btn w-full text-left p-4 rounded-xl border-2 border-gray-200 text-lg font-medium hover:border-blue-500 transition-colors bg-white">
+                            class="option-btn">
                         ${optText}
                     </button>
                 `;
             });
             
-            // Xử lý phần Suggest/Hint
             let hintKey = Object.keys(q).find(k => k.toLowerCase().includes('explanation') || k.toLowerCase().includes('hint') || k.toLowerCase().includes('giải'));
             q._displayHint = hintKey ? q[hintKey] : "Không có giải thích chi tiết.";
 
@@ -387,11 +415,9 @@
             document.getElementById('btn-next').classList.add('hidden');
             document.getElementById('hint-text').classList.add('hidden');
             
-            if(appCategory === 'learn') {
-                let btn5050 = document.getElementById('btn-5050');
-                btn5050.disabled = false;
-                btn5050.classList.remove('opacity-50', 'pointer-events-none');
-            }
+            let btn5050 = document.getElementById('btn-5050');
+            btn5050.disabled = false;
+            btn5050.classList.remove('opacity-50', 'pointer-events-none');
         }
 
         function selectAnswer(btnElement, isCorrect, questionType, userSelectedText, correctText) {
@@ -402,11 +428,8 @@
             
             if(!isCorrect && appCategory === 'test') {
                 wrongAnswersData.push({
-                    type: questionType,
-                    question: q._displayQuestion,
-                    userAnswer: userSelectedText,
-                    correctAnswer: correctText,
-                    hint: q._displayHint
+                    type: questionType, question: q._displayQuestion,
+                    userAnswer: userSelectedText, correctAnswer: correctText, hint: q._displayHint
                 });
             } else if (isCorrect) {
                 if(questionType === 'vocab') scoreData.vocab.correct++;
@@ -416,25 +439,21 @@
             let btns = document.querySelectorAll('.option-btn');
             btns.forEach(b => {
                 b.disabled = true;
-                b.classList.remove('hover:border-blue-500');
-                
                 if(b.getAttribute('data-correct') === 'true') {
-                    b.classList.replace('border-gray-200', 'border-green-500');
-                    b.classList.add('bg-green-50', 'text-green-700');
+                    b.classList.add('option-correct');
                 } else if(b === btnElement && !isCorrect) {
-                    b.classList.replace('border-gray-200', 'border-red-500');
-                    b.classList.add('bg-red-50', 'text-red-700');
+                    b.classList.add('option-incorrect');
                 }
             });
 
             let feedback = document.getElementById('feedback-area');
             feedback.classList.remove('hidden');
             if(isCorrect) {
-                feedback.innerText = "Chính xác";
-                feedback.className = "h-12 flex items-center justify-center font-bold rounded-lg text-white mb-4 transition-colors bg-green-500";
+                feedback.innerText = "CHÍNH XÁC";
+                feedback.className = "w-full py-4 rounded-xl font-bold text-white mb-4 bg-[#10B981]";
             } else {
-                feedback.innerText = "Không chính xác";
-                feedback.className = "h-12 flex items-center justify-center font-bold rounded-lg text-white mb-4 transition-colors bg-red-500";
+                feedback.innerText = "KHÔNG CHÍNH XÁC";
+                feedback.className = "w-full py-4 rounded-xl font-bold text-white mb-4 bg-[#EF4444]";
             }
 
             document.getElementById('btn-next').classList.remove('hidden');
@@ -442,11 +461,8 @@
 
         function nextQuestion() {
             currentIndex++;
-            if(currentIndex < currentSessionQuestions.length) {
-                loadQuestion();
-            } else {
-                endSession();
-            }
+            if(currentIndex < currentSessionQuestions.length) { loadQuestion(); } 
+            else { endSession(); }
         }
 
         function use5050() {
@@ -466,6 +482,7 @@
         }
 
         function showHint() {
+            // Hiển thị gợi ý vô điều kiện khi bấm nút
             let q = currentSessionQuestions[currentIndex];
             let hintEl = document.getElementById('hint-text');
             hintEl.innerText = q._displayHint;
@@ -490,27 +507,9 @@
                 document.getElementById('timer-display').innerText = `TIME ${m}:${s}`;
                 
                 if(remaining < 300) {
-                    document.getElementById('timer-display').classList.add('bg-red-600', 'text-white');
-                    document.getElementById('timer-display').classList.remove('bg-yellow-100', 'text-yellow-600', 'bg-red-100', 'text-red-600');
+                    document.getElementById('timer-display').className = "font-bold text-white bg-[#EF4444] px-3 py-1 rounded-full text-sm";
                 }
             }, 1000);
-        }
-
-        function getMicroFeedback(score) {
-            if(score < 10) return "Hoàn toàn đánh lụi. Bạn chưa sẵn sàng cho tốc độ 15 phút này.";
-            if(score < 40) return "Mức BÁO ĐỘNG. Có phản xạ nhưng sai số quá cao. Cần xem ngay giải thích các câu sai.";
-            if(score <= 60) return "Mức LƯU Ý. Đã có nền tảng nhưng áp lực thời gian đang bào mòn độ chính xác.";
-            if(score <= 70) return "Mức TẠM ỔN. Kiểm soát tốt các câu ngữ pháp cốt lõi. Hãy tăng cường vốn từ.";
-            if(score <= 80) return "Mức KHÁ. Tốc độ và độ chính xác đã đi vào quỹ đạo. Giữ nhịp độ này hàng ngày.";
-            return "Mức TỐT. Hoàn hảo! Tốc độ chạy nước rút này không làm khó được bạn.";
-        }
-
-        function getExtremeFeedback(score) {
-            if(score < 400) return "Mức BÁO ĐỘNG. Cạn kiệt năng lượng. Não bộ đã từ chối phân tích ở nửa chặng sau.";
-            if(score <= 545) return "Mức LƯU Ý. Nền tảng có nhưng sức bền thần kinh chưa quen với việc duy trì sự tập trung.";
-            if(score <= 645) return "Mức TẠM ỔN. Đang ở ranh giới an toàn. Đi thi thật với tinh thần tốt, bạn hoàn toàn có thể bứt phá.";
-            if(score <= 845) return "Mức KHÁ. Sức bền rất ấn tượng. Bạn kiểm soát được chặng đường dài mà ít bị nhiễu tâm lý.";
-            return "Mức TỐT. Quản lý thời gian và sức lực quá tuyệt vời. Cỗ máy làm bài thực thụ.";
         }
 
         function endSession() {
@@ -525,8 +524,6 @@
             document.getElementById('detailed-feedback-container').classList.add('hidden');
             document.getElementById('stats-breakdown').classList.add('hidden');
             document.getElementById('btn-review').classList.add('hidden');
-            let circle = document.getElementById('score-circle');
-            circle.className = "w-40 h-40 border-8 rounded-full flex flex-col items-center justify-center mb-4 relative border-gray-600";
 
             if (appCategory === 'learn') {
                 document.getElementById('score-label').innerText = "HOÀN THÀNH";
@@ -541,26 +538,22 @@
 
                 if (appMode === 'micro') {
                     finalScore = totalCorrect * 2;
-                    document.getElementById('score-label').innerText = "THANG 100";
-                    let roundedScore = Math.floor(finalScore / 10) * 10;
-                    document.getElementById('detailed-feedback').innerText = getMicroFeedback(roundedScore);
-                    
-                    if (finalScore < 40) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-red-600 text-white"; circle.classList.add('border-red-600'); }
-                    else if (finalScore <= 60) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-orange-500 text-white"; circle.classList.add('border-orange-500'); }
-                    else if (finalScore <= 70) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-yellow-400 text-black"; circle.classList.add('border-yellow-400'); }
-                    else if (finalScore <= 80) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-blue-500 text-white"; circle.classList.add('border-blue-500'); }
-                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-green-500 text-white"; circle.classList.add('border-green-500'); }
+                    document.getElementById('score-label').innerText = "THANG ĐIỂM 100";
+                    if (finalScore < 40) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#EF4444] text-white mb-6 mt-4 shadow-sm"; }
+                    else if (finalScore <= 60) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#F59E0B] text-white mb-6 mt-4 shadow-sm"; }
+                    else if (finalScore <= 70) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#FBBF24] text-black mb-6 mt-4 shadow-sm"; }
+                    else if (finalScore <= 80) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#3B82F6] text-white mb-6 mt-4 shadow-sm"; }
+                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#10B981] text-white mb-6 mt-4 shadow-sm"; }
+                    document.getElementById('detailed-feedback').innerText = "Hoàn thành bài Micro-testing. Hãy duy trì nhịp độ làm bài mỗi ngày để giữ cảm giác đọc hiểu.";
                 } else {
                     finalScore = totalCorrect * 5;
-                    document.getElementById('score-label').innerText = "THANG 1000";
-                    let roundedScore = Math.floor(finalScore / 50) * 50;
-                    document.getElementById('detailed-feedback').innerText = getExtremeFeedback(roundedScore);
-
-                    if (finalScore < 400) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-red-600 text-white"; circle.classList.add('border-red-600'); }
-                    else if (finalScore <= 545) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-orange-500 text-white"; circle.classList.add('border-orange-500'); }
-                    else if (finalScore <= 645) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-yellow-400 text-black"; circle.classList.add('border-yellow-400'); }
-                    else if (finalScore <= 845) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-blue-500 text-white"; circle.classList.add('border-blue-500'); }
-                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-green-500 text-white"; circle.classList.add('border-green-500'); }
+                    document.getElementById('score-label').innerText = "THANG ĐIỂM 1000";
+                    if (finalScore < 400) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#EF4444] text-white mb-6 mt-4 shadow-sm"; }
+                    else if (finalScore <= 545) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#F59E0B] text-white mb-6 mt-4 shadow-sm"; }
+                    else if (finalScore <= 645) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#FBBF24] text-black mb-6 mt-4 shadow-sm"; }
+                    else if (finalScore <= 845) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#3B82F6] text-white mb-6 mt-4 shadow-sm"; }
+                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#10B981] text-white mb-6 mt-4 shadow-sm"; }
+                    document.getElementById('detailed-feedback').innerText = "Bài test sức bền kết thúc. Bạn đã làm rất tốt, hãy review kỹ các câu sai để không lặp lại lỗi ở phòng thi thật.";
                 }
 
                 document.getElementById('final-score').innerText = finalScore;
@@ -575,35 +568,35 @@
             
             let container = document.getElementById('review-container');
             if (wrongAnswersData.length === 0) {
-                container.innerHTML = `<div class="text-center text-gray-500 mt-10">Tuyệt vời! Bạn không sai câu nào.</div>`;
+                container.innerHTML = `<div class="text-center text-gray-400 mt-10 text-sm font-medium">Tuyệt vời! Bạn không sai câu nào.</div>`;
                 return;
             }
 
             let html = '';
             wrongAnswersData.forEach((item, index) => {
-                let tagColor = item.type === 'vocab' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600';
+                let tagColor = item.type === 'vocab' ? 'bg-blue-50 text-[#5B73E8]' : 'bg-green-50 text-[#10B981]';
                 let tagText = item.type === 'vocab' ? 'Từ vựng' : 'Ngữ pháp';
                 
                 html += `
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 review-card">
                         <div class="flex items-center gap-2 mb-3">
-                            <span class="text-xs font-bold px-2 py-1 ${tagColor} rounded-md uppercase">${tagText}</span>
-                            <span class="text-sm font-bold text-gray-400">Câu ${index + 1}</span>
+                            <span class="text-[10px] font-bold px-2 py-1 ${tagColor} rounded-md uppercase">${tagText}</span>
+                            <span class="text-xs font-bold text-gray-400">Câu ${index + 1}</span>
                         </div>
-                        <p class="font-medium text-gray-800 mb-4">${item.question}</p>
+                        <p class="font-medium text-[1rem] text-gray-800 mb-4">${item.question}</p>
                         
-                        <div class="flex flex-col gap-2 mb-4 text-sm">
+                        <div class="flex flex-col gap-2 mb-4 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
                             <div class="flex items-start gap-2">
-                                <span class="text-red-500 font-bold w-16 shrink-0">Bạn chọn:</span>
-                                <span class="text-gray-600 line-through">${item.userAnswer}</span>
+                                <span class="text-[#EF4444] font-bold w-16 shrink-0">Bạn chọn:</span>
+                                <span class="text-gray-500 line-through">${item.userAnswer}</span>
                             </div>
                             <div class="flex items-start gap-2">
-                                <span class="text-green-600 font-bold w-16 shrink-0">Đáp án:</span>
+                                <span class="text-[#10B981] font-bold w-16 shrink-0">Đáp án:</span>
                                 <span class="text-gray-900 font-bold">${item.correctAnswer}</span>
                             </div>
                         </div>
                         
-                        <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200 text-sm text-gray-700">
+                        <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-100 text-xs text-gray-600 leading-relaxed">
                             <span class="font-bold text-yellow-700">Giải thích:</span> ${item.hint}
                         </div>
                     </div>
