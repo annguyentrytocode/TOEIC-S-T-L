@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOEIC S-T&L Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .hidden-page { display: none !important; }
+        .review-card { border-left: 4px solid #F56565; }
+        
+        /* Gradient buttons */
+        .btn-test { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
+        .btn-learn { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+        .btn-micro { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+        .btn-extreme { background: linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%); }
+        .btn-vocab { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        .btn-grammar { background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); }
+    </style>
+</head>
+<body class="bg-[#1A202C] text-white font-sans min-h-screen">
+
+    <div id="home-page" class="w-full max-w-md mx-auto p-6 flex flex-col items-center justify-center min-h-screen relative">
+        <div class="text-4xl text-blue-400 mb-2 font-bold">✦</div>
+        <h1 class="text-6xl font-bold mb-2 text-center leading-tight">TOEIC<br><span class="text-4xl text-gray-300">S-T&L</span></h1>
+        <h2 class="text-sm font-medium mb-10 text-gray-400 text-center uppercase tracking-widest">Self Test & Learn</h2>
+        
+        <div id="main-nav" class="w-full flex flex-col gap-5 w-full transition-all">
+            <button onclick="showMenu('test-menu')" class="btn-test text-white w-full py-6 rounded-2xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
+                <span class="font-bold text-3xl tracking-wide">TEST</span>
+                <span class="text-sm text-red-200 mt-1">Đo lường năng lực</span>
+            </button>
+            
+            <button onclick="showMenu('learn-menu')" class="btn-learn text-white w-full py-6 rounded-2xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
+                <span class="font-bold text-3xl tracking-wide">LEARN</span>
+                <span class="text-sm text-blue-200 mt-1">Củng cố kiến thức</span>
+            </button>
+        </div>
+
+        <div id="test-menu" class="hidden-page w-full flex flex-col gap-4 transition-all">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xl font-bold text-gray-300">Chọn chế độ Test</h3>
+                <button onclick="showMenu('main-nav')" class="text-sm text-gray-500 hover:text-white">← Quay lại</button>
+            </div>
+            <button onclick="startApp('test', 'micro')" class="btn-micro text-white w-full py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
+                <span class="font-bold text-xl mb-1">Micro-Testing</span>
+                <span class="text-xs text-yellow-100">50 Qs | 15 Mins | Daily Sprint</span>
+            </button>
+            <button onclick="startApp('test', 'extreme')" class="btn-extreme text-white w-full py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
+                <span class="font-bold text-xl mb-1">Extreme Mock</span>
+                <span class="text-xs text-red-200">200 Qs | 100 Mins | Endurance</span>
+            </button>
+        </div>
+
+        <div id="learn-menu" class="hidden-page w-full flex flex-col gap-4 transition-all">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xl font-bold text-gray-300">Chọn chủ đề Learn</h3>
+                <button onclick="showMenu('main-nav')" class="text-sm text-gray-500 hover:text-white">← Quay lại</button>
+            </div>
+            <button onclick="startApp('learn', 'vocab')" class="btn-vocab text-white w-full py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
+                <span class="font-bold text-xl mb-1">Vocab Focus</span>
+                <span class="text-xs text-green-100">50 Từ vựng | No Time Limit</span>
+            </button>
+            <button onclick="startApp('learn', 'grammar')" class="btn-grammar text-white w-full py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex flex-col items-center">
+                <span class="font-bold text-xl mb-1">Grammar Focus</span>
+                <span class="text-xs text-purple-200">50 Ngữ pháp | No Time Limit</span>
+            </button>
+        </div>
+        
+        <div id="loading-indicator" class="absolute bottom-6 text-xs opacity-80 text-center px-4 text-gray-500 w-full left-0">Đang khởi tạo hệ thống...</div>
+    </div>
+
+    <div id="quiz-page" class="hidden-page w-full max-w-md mx-auto bg-white text-black min-h-screen p-6 flex flex-col relative">
+        <div class="flex justify-between items-center mb-4">
+            <button onclick="goHome()" class="text-2xl text-gray-500 hover:text-black">←</button>
+            <div id="timer-display" class="font-bold px-4 py-1 rounded-full transition-colors hidden">TIME 00:00</div>
+            <div id="question-counter" class="font-bold text-gray-700">Q 1/50</div>
+        </div>
+
+        <div class="w-full bg-gray-200 rounded-full h-1.5 mb-6">
+            <div id="progress-bar" class="h-1.5 rounded-full transition-all duration-100" style="width: 0%"></div>
+        </div>
+
+        <div id="question-tag" class="text-xs font-bold px-3 py-1 bg-gray-100 rounded-full w-max mb-4 text-gray-500 uppercase tracking-wider"></div>
+
+        <div class="mb-8 min-h-[120px]">
+            <p id="question-text" class="text-xl font-medium leading-relaxed"></p>
+        </div>
+
+        <div id="options-container" class="flex flex-col gap-3 mb-6"></div>
+        <div id="feedback-area" class="h-12 flex items-center justify-center font-bold rounded-lg text-white hidden mb-4 transition-colors"></div>
+        
+        <div class="flex justify-between items-center mt-auto pb-4">
+            <div class="flex gap-2" id="support-tools">
+                <button id="btn-5050" onclick="use5050()" class="w-12 h-12 rounded-full border-2 border-gray-300 text-gray-500 font-bold flex items-center justify-center hover:bg-gray-100 transition-colors">50%</button>
+                <button id="btn-suggest" onclick="showHint()" class="px-4 py-2 rounded-full border-2 border-gray-300 text-gray-500 font-bold hover:bg-gray-100 transition-colors">Suggest</button>
+            </div>
+            <button id="btn-next" onclick="nextQuestion()" class="bg-gray-800 text-white px-8 py-3 rounded-full font-bold hidden hover:bg-black transition-colors ml-auto">Tiếp tục</button>
+        </div>
+
+        <div id="hint-text" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-gray-700 hidden"></div>
+    </div>
+
+    <div id="result-page" class="hidden-page w-full max-w-md mx-auto bg-[#1A202C] p-6 flex flex-col items-center min-h-screen overflow-y-auto">
+        <h2 class="text-2xl font-bold mt-4 mb-2 text-white">Báo cáo năng lực</h2>
+        
+        <div class="w-40 h-40 border-8 rounded-full flex flex-col items-center justify-center mb-4 relative" id="score-circle">
+            <span id="score-label" class="text-gray-400 text-xs font-bold tracking-widest uppercase mb-1">Kết quả</span>
+            <span id="final-score" class="text-4xl font-bold text-white">0</span>
+        </div>
+
+        <div id="tier-tag" class="px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide hidden"></div>
+
+        <div id="detailed-feedback-container" class="w-full bg-[#2D3748] rounded-xl p-5 mb-6 shadow-lg border border-gray-700 hidden">
+            <p id="detailed-feedback" class="text-gray-300 text-sm leading-relaxed text-justify"></p>
+        </div>
+        
+        <div id="stats-breakdown" class="w-full grid grid-cols-2 gap-4 mb-8 text-center hidden">
+            <div class="bg-[#2D3748] p-3 rounded-lg">
+                <p class="text-xs text-gray-400 uppercase">Từ vựng</p>
+                <p id="stat-vocab" class="text-lg font-bold text-blue-400">0/0</p>
+            </div>
+            <div class="bg-[#2D3748] p-3 rounded-lg">
+                <p class="text-xs text-gray-400 uppercase">Ngữ pháp</p>
+                <p id="stat-grammar" class="text-lg font-bold text-green-400">0/0</p>
+            </div>
+        </div>
+
+        <div class="w-full flex flex-col gap-3 mt-auto pb-6">
+            <button id="btn-review" onclick="showReview()" class="bg-yellow-500 text-black w-full py-3 rounded-xl font-bold text-lg hover:bg-yellow-400 transition-colors hidden">Review câu sai</button>
+            <button onclick="goHome()" class="bg-transparent border-2 border-gray-500 text-gray-300 w-full py-3 rounded-xl font-bold text-lg hover:bg-gray-700 transition-colors">Về Trang chủ</button>
+        </div>
+    </div>
+
+    <div id="review-page" class="hidden-page w-full max-w-md mx-auto bg-[#F7FAFC] text-black min-h-screen flex flex-col relative">
+        <div class="sticky top-0 bg-white border-b shadow-sm p-4 flex items-center justify-between z-10">
+            <h2 class="font-bold text-lg text-gray-800">Review Câu Sai</h2>
+            <button onclick="closeReview()" class="text-gray-500 hover:text-black font-bold">Đóng ✕</button>
+        </div>
+        <div id="review-container" class="p-4 flex flex-col gap-6 pb-20"></div>
+    </div>
+
+    <script>
+        let allVocab = [];
+        let allGrammar = [];
+        let currentSessionQuestions = [];
+        let wrongAnswersData = [];
+        let currentIndex = 0;
+        
+        let scoreData = {
+            vocab: { correct: 0, total: 0 },
+            grammar: { correct: 0, total: 0 }
+        };
+        
+        let appCategory = ''; // 'test' or 'learn'
+        let appMode = '';     // 'micro', 'extreme', 'vocab', 'grammar'
+        let timerInterval;
+        let secondsElapsed = 0;
+        let timeLimit = 0;
+        let hasAnsweredCurrent = false;
+
+        window.onload = () => {
+            // Đọc đúng định dạng tên file bạn yêu cầu
+            Promise.all([
+                fetch('vocab.json').then(res => res.json()).catch(() => []),
+                fetch('gramar.json').then(res => res.json()).catch(() => []) 
+            ]).then(([vocabData, grammarData]) => {
+                allVocab = parseRobustData(vocabData, 'vocab');
+                allGrammar = parseRobustData(grammarData, 'grammar');
+                let indicator = document.getElementById('loading-indicator');
+                if (allVocab.length > 0 && allGrammar.length > 0) {
+                    indicator.innerText = `Database Ready: ${allVocab.length} Vocab | ${allGrammar.length} Grammar`;
+                    indicator.classList.add('text-green-500');
+                    indicator.classList.remove('text-gray-500');
+                } else {
+                    indicator.innerText = `Cảnh báo: Thiếu dữ liệu. Kiểm tra lại vocab.json / gramar.json`;
+                    indicator.classList.add('text-red-500');
+                }
+            });
+        };
+
+        function showMenu(menuId) {
+            document.getElementById('main-nav').classList.add('hidden-page');
+            document.getElementById('test-menu').classList.add('hidden-page');
+            document.getElementById('learn-menu').classList.add('hidden-page');
+            document.getElementById(menuId).classList.remove('hidden-page');
+        }
+
+        function parseRobustData(data, typeTag) {
+            let extractedArray = [];
+            if (Array.isArray(data)) extractedArray = data;
+            else if (typeof data === 'object') {
+                for (let key in data) {
+                    if (Array.isArray(data[key])) extractedArray = extractedArray.concat(data[key]);
+                }
+            }
+            return extractedArray.filter(q => {
+                let questionKey = Object.keys(q).find(k => k.toLowerCase().includes('question') || k.toLowerCase().includes('cauhoi'));
+                let rawQuestion = questionKey ? q[questionKey] : Object.values(q).find(v => typeof v === 'string' && v.includes('___'));
+                return rawQuestion && String(rawQuestion).trim() !== "";
+            }).map(q => ({ ...q, _questionType: typeTag }));
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startApp(category, mode) {
+            if (allVocab.length === 0 && allGrammar.length === 0) {
+                alert("Dữ liệu chưa tải xong. Hãy đợi một chút hoặc kiểm tra tên file!");
+                return;
+            }
+
+            appCategory = category;
+            appMode = mode;
+            scoreData.vocab.correct = 0;
+            scoreData.grammar.correct = 0;
+            wrongAnswersData = [];
+            currentIndex = 0;
+            hasAnsweredCurrent = false;
+            
+            let vCount = 0;
+            let gCount = 0;
+            
+            // Cấu hình UI theo chế độ
+            let timerDisplay = document.getElementById('timer-display');
+            let supportTools = document.getElementById('support-tools');
+            let progressBar = document.getElementById('progress-bar');
+            
+            if (category === 'test') {
+                timerDisplay.classList.remove('hidden');
+                supportTools.classList.add('hidden');
+                document.getElementById('btn-next').classList.add('w-full'); // Nút next full width khi test
+                
+                if (mode === 'micro') {
+                    vCount = 25; gCount = 25;
+                    timeLimit = 15 * 60;
+                    progressBar.className = "bg-yellow-500 h-1.5 rounded-full transition-all duration-100";
+                    timerDisplay.className = "font-bold text-yellow-600 bg-yellow-100 px-4 py-1 rounded-full";
+                } else if (mode === 'extreme') {
+                    vCount = 100; gCount = 100;
+                    timeLimit = 100 * 60;
+                    progressBar.className = "bg-red-500 h-1.5 rounded-full transition-all duration-100";
+                    timerDisplay.className = "font-bold text-red-600 bg-red-100 px-4 py-1 rounded-full";
+                }
+            } else if (category === 'learn') {
+                timerDisplay.classList.add('hidden'); // Ẩn thời gian để học thoải mái
+                supportTools.classList.remove('hidden');
+                document.getElementById('btn-next').classList.remove('w-full');
+                progressBar.className = "bg-blue-500 h-1.5 rounded-full transition-all duration-100";
+                
+                if (mode === 'vocab') {
+                    vCount = 50; gCount = 0;
+                } else if (mode === 'grammar') {
+                    vCount = 0; gCount = 50;
+                }
+            }
+
+            let shuffledVocab = shuffle([...allVocab]);
+            let shuffledGrammar = shuffle([...allGrammar]);
+            
+            vCount = Math.min(vCount, shuffledVocab.length);
+            gCount = Math.min(gCount, shuffledGrammar.length);
+            
+            scoreData.vocab.total = vCount;
+            scoreData.grammar.total = gCount;
+
+            currentSessionQuestions = shuffle([...shuffledVocab.slice(0, vCount), ...shuffledGrammar.slice(0, gCount)]);
+
+            if(currentSessionQuestions.length === 0) return;
+
+            document.getElementById('home-page').classList.add('hidden-page');
+            document.getElementById('result-page').classList.add('hidden-page');
+            document.getElementById('review-page').classList.add('hidden-page');
+            document.getElementById('quiz-page').classList.remove('hidden-page');
+
+            if (category === 'test') startTimer();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            hasAnsweredCurrent = false;
+            let q = currentSessionQuestions[currentIndex];
+            
+            document.getElementById('question-counter').innerText = `Q ${currentIndex + 1}/${currentSessionQuestions.length}`;
+            let progress = ((currentIndex + 1) / currentSessionQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + "%";
+            
+            let tagEl = document.getElementById('question-tag');
+            tagEl.innerText = q._questionType === 'vocab' ? "Từ vựng" : "Ngữ pháp";
+            
+            let questionKey = Object.keys(q).find(k => k.toLowerCase().includes('question') || k.toLowerCase().includes('cauhoi'));
+            let rawQuestion = questionKey ? q[questionKey] : Object.values(q).find(v => typeof v === 'string' && v.includes('___'));
+            let cleanQuestion = String(rawQuestion).replace(/^(Sample\s*)?Question\s*\d+:\s*/i, '');
+            
+            q._displayQuestion = cleanQuestion.replace(/[-_]{3,}/g, '_____'); 
+            document.getElementById('question-text').innerHTML = cleanQuestion.replace(/[-_]{3,}/g, '<span class="inline-block w-16 border-b-2 border-black"></span>');
+            
+            let validOptions = [];
+            let excludeKeywords = ['question', 'correct', 'hint', 'answer', 'hướng dẫn', 'giải thích', 'câu', 'gợi', 'suggest', '_questiontype', 'explanation', '_displayquestion', '_displayhint'];
+            
+            for (let key in q) {
+                let cleanKey = key.trim().toLowerCase();
+                if (!excludeKeywords.some(ex => cleanKey.includes(ex))) {
+                    let val = q[key];
+                    if (val !== undefined && val !== null && String(val).trim() !== '') {
+                        validOptions.push({ keyOriginal: key, text: String(val).trim() });
+                    }
+                }
+            }
+            
+            let finalOptions = validOptions.length > 4 ? validOptions.sort((a, b) => a.keyOriginal.length - b.keyOriginal.length).slice(0, 4) : validOptions;
+
+            let correctKey = Object.keys(q).find(k => k.toLowerCase().includes('correct') || k.toLowerCase().includes('answer') || k.toLowerCase().includes('dapan') || k.toLowerCase().includes('đáp'));
+            let correctKeyFromExcel = correctKey ? String(q[correctKey]).trim().toLowerCase() : "";
+
+            let actualCorrectText = correctKeyFromExcel; 
+            for(let k in q) {
+                if (k.trim().toLowerCase() === correctKeyFromExcel) {
+                    actualCorrectText = String(q[k]).trim().toLowerCase();
+                    break;
+                }
+            }
+
+            let optionsHtml = '';
+            let correctTextSaved = "Không rõ";
+
+            shuffle([...finalOptions]).forEach(optObj => {
+                let optText = optObj.text;
+                let isThisBtnCorrect = false;
+                
+                if (optObj.keyOriginal.trim().toLowerCase() === correctKeyFromExcel || 
+                    optText.toLowerCase() === correctKeyFromExcel || 
+                    optText.toLowerCase() === actualCorrectText) {
+                    isThisBtnCorrect = true;
+                    correctTextSaved = optText;
+                }
+
+                let safeOpt = optText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                optionsHtml += `
+                    <button onclick="selectAnswer(this, ${isThisBtnCorrect}, '${q._questionType}', '${safeOpt}', '${correctTextSaved.replace(/'/g, "\\'")}')" 
+                            data-correct="${isThisBtnCorrect}" 
+                            class="option-btn w-full text-left p-4 rounded-xl border-2 border-gray-200 text-lg font-medium hover:border-blue-500 transition-colors bg-white">
+                        ${optText}
+                    </button>
+                `;
+            });
+            
+            let hintKey = Object.keys(q).find(k => k.toLowerCase().includes('explanation') || k.toLowerCase().includes('hint') || k.toLowerCase().includes('giải'));
+            q._displayHint = hintKey ? q[hintKey] : "Không có giải thích chi tiết.";
+
+            document.getElementById('options-container').innerHTML = optionsHtml;
+            document.getElementById('feedback-area').classList.add('hidden');
+            document.getElementById('btn-next').classList.add('hidden');
+            document.getElementById('hint-text').classList.add('hidden');
+            
+            if(appCategory === 'learn') {
+                let btn5050 = document.getElementById('btn-5050');
+                btn5050.disabled = false;
+                btn5050.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        function selectAnswer(btnElement, isCorrect, questionType, userSelectedText, correctText) {
+            if(hasAnsweredCurrent) return;
+            hasAnsweredCurrent = true;
+            
+            let q = currentSessionQuestions[currentIndex];
+            
+            if(!isCorrect && appCategory === 'test') {
+                wrongAnswersData.push({
+                    type: questionType,
+                    question: q._displayQuestion,
+                    userAnswer: userSelectedText,
+                    correctAnswer: correctText,
+                    hint: q._displayHint
+                });
+            } else if (isCorrect) {
+                if(questionType === 'vocab') scoreData.vocab.correct++;
+                else scoreData.grammar.correct++;
+            }
+
+            let btns = document.querySelectorAll('.option-btn');
+            btns.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:border-blue-500');
+                
+                if(b.getAttribute('data-correct') === 'true') {
+                    b.classList.replace('border-gray-200', 'border-green-500');
+                    b.classList.add('bg-green-50', 'text-green-700');
+                } else if(b === btnElement && !isCorrect) {
+                    b.classList.replace('border-gray-200', 'border-red-500');
+                    b.classList.add('bg-red-50', 'text-red-700');
+                }
+            });
+
+            let feedback = document.getElementById('feedback-area');
+            feedback.classList.remove('hidden');
+            if(isCorrect) {
+                feedback.innerText = "Chính xác";
+                feedback.className = "h-12 flex items-center justify-center font-bold rounded-lg text-white mb-4 transition-colors bg-green-500";
+            } else {
+                feedback.innerText = "Không chính xác";
+                feedback.className = "h-12 flex items-center justify-center font-bold rounded-lg text-white mb-4 transition-colors bg-red-500";
+            }
+
+            document.getElementById('btn-next').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if(currentIndex < currentSessionQuestions.length) {
+                loadQuestion();
+            } else {
+                endSession();
+            }
+        }
+
+        function use5050() {
+            if(hasAnsweredCurrent) return;
+            let btns = Array.from(document.querySelectorAll('.option-btn'));
+            let incorrectBtns = btns.filter(b => b.getAttribute('data-correct') !== 'true');
+            
+            shuffle(incorrectBtns);
+            let hideCount = Math.min(2, incorrectBtns.length);
+            for(let i=0; i<hideCount; i++) {
+                incorrectBtns[i].classList.add('opacity-0', 'pointer-events-none');
+            }
+            
+            let btn5050 = document.getElementById('btn-5050');
+            btn5050.disabled = true;
+            btn5050.classList.add('opacity-50', 'pointer-events-none');
+        }
+
+        function showHint() {
+            let q = currentSessionQuestions[currentIndex];
+            let hintEl = document.getElementById('hint-text');
+            hintEl.innerText = q._displayHint;
+            hintEl.classList.remove('hidden');
+        }
+
+        function startTimer() {
+            secondsElapsed = 0;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                let remaining = timeLimit - secondsElapsed;
+                
+                if(remaining <= 0) {
+                    clearInterval(timerInterval);
+                    endSession();
+                    return;
+                }
+
+                let m = Math.floor(remaining / 60).toString().padStart(2, '0');
+                let s = (remaining % 60).toString().padStart(2, '0');
+                document.getElementById('timer-display').innerText = `TIME ${m}:${s}`;
+                
+                if(remaining < 300) { // Cảnh báo 5 phút cuối
+                    document.getElementById('timer-display').classList.add('bg-red-600', 'text-white');
+                    document.getElementById('timer-display').classList.remove('bg-yellow-100', 'text-yellow-600', 'bg-red-100', 'text-red-600');
+                }
+            }, 1000);
+        }
+
+        function getMicroFeedback(score) {
+            if(score < 10) return "Hoàn toàn đánh lụi. Bạn chưa sẵn sàng cho tốc độ 15 phút này.";
+            if(score < 40) return "Mức BÁO ĐỘNG. Có phản xạ nhưng sai số quá cao. Cần xem ngay giải thích các câu sai.";
+            if(score <= 60) return "Mức LƯU Ý. Đã có nền tảng nhưng áp lực thời gian đang bào mòn độ chính xác.";
+            if(score <= 70) return "Mức TẠM ỔN. Kiểm soát tốt các câu ngữ pháp cốt lõi. Hãy tăng cường vốn từ.";
+            if(score <= 80) return "Mức KHÁ. Tốc độ và độ chính xác đã đi vào quỹ đạo. Giữ nhịp độ này hàng ngày.";
+            return "Mức TỐT. Hoàn hảo! Tốc độ chạy nước rút này không làm khó được bạn.";
+        }
+
+        function getExtremeFeedback(score) {
+            if(score < 400) return "Mức BÁO ĐỘNG. Cạn kiệt năng lượng. Não bộ đã từ chối phân tích ở nửa chặng sau.";
+            if(score <= 545) return "Mức LƯU Ý. Nền tảng có nhưng sức bền thần kinh chưa quen với việc duy trì sự tập trung.";
+            if(score <= 645) return "Mức TẠM ỔN. Đang ở ranh giới an toàn. Đi thi thật với tinh thần tốt, bạn hoàn toàn có thể bứt phá.";
+            if(score <= 845) return "Mức KHÁ. Sức bền rất ấn tượng. Bạn kiểm soát được chặng đường dài mà ít bị nhiễu tâm lý.";
+            return "Mức TỐT. Quản lý thời gian và sức lực quá tuyệt vời. Cỗ máy làm bài thực thụ.";
+        }
+
+        function endSession() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-page').classList.add('hidden-page');
+            document.getElementById('result-page').classList.remove('hidden-page');
+            
+            let totalCorrect = scoreData.vocab.correct + scoreData.grammar.correct;
+            let totalQs = scoreData.vocab.total + scoreData.grammar.total;
+            
+            // Xóa rỗng các trường để set lại
+            document.getElementById('tier-tag').classList.add('hidden');
+            document.getElementById('detailed-feedback-container').classList.add('hidden');
+            document.getElementById('stats-breakdown').classList.add('hidden');
+            document.getElementById('btn-review').classList.add('hidden');
+            let circle = document.getElementById('score-circle');
+            circle.className = "w-40 h-40 border-8 rounded-full flex flex-col items-center justify-center mb-4 relative border-gray-600";
+
+            if (appCategory === 'learn') {
+                // Chế độ Learn chỉ hiển thị điểm đơn giản
+                document.getElementById('score-label').innerText = "HOÀN THÀNH";
+                document.getElementById('final-score').innerText = `${totalCorrect}/${totalQs}`;
+            } else {
+                // Chế độ Test tính điểm phức tạp và hiển thị Review
+                let finalScore = 0;
+                let tierTag = document.getElementById('tier-tag');
+                tierTag.classList.remove('hidden');
+                document.getElementById('detailed-feedback-container').classList.remove('hidden');
+                document.getElementById('stats-breakdown').classList.remove('hidden');
+                document.getElementById('btn-review').classList.remove('hidden');
+
+                if (appMode === 'micro') {
+                    finalScore = totalCorrect * 2;
+                    document.getElementById('score-label').innerText = "THANG 100";
+                    let roundedScore = Math.floor(finalScore / 10) * 10;
+                    document.getElementById('detailed-feedback').innerText = getMicroFeedback(roundedScore);
+                    
+                    if (finalScore < 40) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-red-600 text-white"; circle.classList.add('border-red-600'); }
+                    else if (finalScore <= 60) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-orange-500 text-white"; circle.classList.add('border-orange-500'); }
+                    else if (finalScore <= 70) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-yellow-400 text-black"; circle.classList.add('border-yellow-400'); }
+                    else if (finalScore <= 80) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-blue-500 text-white"; circle.classList.add('border-blue-500'); }
+                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-green-500 text-white"; circle.classList.add('border-green-500'); }
+                } else {
+                    finalScore = totalCorrect * 5;
+                    document.getElementById('score-label').innerText = "THANG 1000";
+                    let roundedScore = Math.floor(finalScore / 50) * 50;
+                    document.getElementById('detailed-feedback').innerText = getExtremeFeedback(roundedScore);
+
+                    if (finalScore < 400) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-red-600 text-white"; circle.classList.add('border-red-600'); }
+                    else if (finalScore <= 545) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-orange-500 text-white"; circle.classList.add('border-orange-500'); }
+                    else if (finalScore <= 645) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-yellow-400 text-black"; circle.classList.add('border-yellow-400'); }
+                    else if (finalScore <= 845) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-blue-500 text-white"; circle.classList.add('border-blue-500'); }
+                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-lg mb-6 tracking-wide bg-green-500 text-white"; circle.classList.add('border-green-500'); }
+                }
+
+                document.getElementById('final-score').innerText = finalScore;
+                document.getElementById('stat-vocab').innerText = `${scoreData.vocab.correct}/${scoreData.vocab.total}`;
+                document.getElementById('stat-grammar').innerText = `${scoreData.grammar.correct}/${scoreData.grammar.total}`;
+            }
+        }
+
+        function showReview() {
+            document.getElementById('result-page').classList.add('hidden-page');
+            document.getElementById('review-page').classList.remove('hidden-page');
+            
+            let container = document.getElementById('review-container');
+            if (wrongAnswersData.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 mt-10">Tuyệt vời! Bạn không sai câu nào.</div>`;
+                return;
+            }
+
+            let html = '';
+            wrongAnswersData.forEach((item, index) => {
+                let tagColor = item.type === 'vocab' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600';
+                let tagText = item.type === 'vocab' ? 'Từ vựng' : 'Ngữ pháp';
+                
+                html += `
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 review-card">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-xs font-bold px-2 py-1 ${tagColor} rounded-md uppercase">${tagText}</span>
+                            <span class="text-sm font-bold text-gray-400">Câu ${index + 1}</span>
+                        </div>
+                        <p class="font-medium text-gray-800 mb-4">${item.question}</p>
+                        
+                        <div class="flex flex-col gap-2 mb-4 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="text-red-500 font-bold w-16 shrink-0">Bạn chọn:</span>
+                                <span class="text-gray-600 line-through">${item.userAnswer}</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-green-600 font-bold w-16 shrink-0">Đáp án:</span>
+                                <span class="text-gray-900 font-bold">${item.correctAnswer}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200 text-sm text-gray-700">
+                            <span class="font-bold text-yellow-700">Giải thích:</span> ${item.hint}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function closeReview() {
+            document.getElementById('review-page').classList.add('hidden-page');
+            document.getElementById('result-page').classList.remove('hidden-page');
+        }
+
+        function goHome() {
+            clearInterval(timerInterval);
+            document.getElementById('result-page').classList.add('hidden-page');
+            document.getElementById('review-page').classList.add('hidden-page');
+            document.getElementById('home-page').classList.remove('hidden-page');
+            showMenu('main-nav'); // Mặc định mở lại màn hình chọn chính
+        }
+    </script>
+</body>
+</html>
