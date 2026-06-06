@@ -6,9 +6,7 @@
     <title>TOEIC S-T&L</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Tích hợp font Google Sans (Fallback sang Be Vietnam Pro để hiển thị tiếng Việt chuẩn) */
-        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap');
-        
+        /* Tích hợp chuẩn duy nhất font Google Sans */
         @font-face {
             font-family: 'Google Sans';
             src: local('Google Sans'), local('GoogleSans-Regular');
@@ -26,15 +24,15 @@
         }
 
         body { 
-            font-family: 'Google Sans', 'Be Vietnam Pro', sans-serif;
+            font-family: 'Google Sans', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            background-color: #F3F4F6; /* Nền xám nhạt bao quanh mô phỏng điện thoại */
+            background-color: #F3F4F6;
         }
         
         .app-container {
             background-color: #FFFFFF;
             min-height: 100vh;
-            max-width: 420px; /* Chuẩn kích thước mobile */
+            max-width: 420px;
             margin: 0 auto;
             box-shadow: 0 0 20px rgba(0,0,0,0.05);
             position: relative;
@@ -45,9 +43,8 @@
 
         .hidden-page { display: none !important; }
         
-        /* Bố cục cong đặc trưng từ thiết kế Figma */
         .curved-header {
-            background-color: #5B73E8; /* Màu xanh chủ đạo */
+            background-color: #5B73E8;
             border-bottom-left-radius: 40px;
             border-bottom-right-radius: 40px;
             color: white;
@@ -58,7 +55,6 @@
             box-shadow: 0 10px 20px rgba(91, 115, 232, 0.2);
         }
 
-        /* Nút menu chính */
         .menu-btn {
             background: white;
             border: 1px solid #E5E7EB;
@@ -75,7 +71,6 @@
         }
         .menu-btn:active { transform: scale(0.98); }
 
-        /* Nút đáp án */
         .option-btn {
             border: 2px solid #E5E7EB;
             border-radius: 12px;
@@ -91,17 +86,34 @@
         .option-correct { border-color: #10B981; color: #10B981; background-color: #ECFDF5; }
         .option-incorrect { border-color: #EF4444; color: #EF4444; background-color: #FEF2F2; }
         
-        /* Progress bar mỏng ở trên cùng */
         .progress-container { width: 100%; background-color: #E5E7EB; height: 4px; }
         .progress-fill { background-color: #5B73E8; height: 100%; transition: width 0.3s ease; }
 
-        /* Review Card */
         .review-card { border-left: 4px solid #F56565; }
+
+        /* ---------- ANIMATIONS ---------- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes popOut {
+            0% { transform: scale(0.9); opacity: 0; }
+            50% { transform: scale(1.02); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
     </style>
 </head>
 <body>
 
-    <div id="home-page" class="app-container">
+    <!-- HOME PAGE -->
+    <div id="home-page" class="app-container animate-fade-in">
         <div class="curved-header flex flex-col items-center justify-center min-h-[35vh]">
             <div class="text-3xl mb-1">✦</div>
             <h1 class="text-5xl font-bold tracking-tight mb-2">TOEIC</h1>
@@ -109,20 +121,22 @@
         </div>
         
         <div class="flex-1 px-6 py-10 flex flex-col items-center">
-            
-            <div id="main-nav" class="w-full flex flex-col gap-4 mt-8">
+            <!-- MAIN NAV -->
+            <div id="main-nav" class="w-full flex flex-col gap-4 mt-8 animate-fade-in">
                 <button onclick="showMenu('test-menu')" class="menu-btn">TESTING</button>
                 <button onclick="showMenu('learn-menu')" class="menu-btn">LEARNING</button>
             </div>
 
-            <div id="test-menu" class="hidden-page w-full flex flex-col gap-4 w-full mt-4">
+            <!-- TEST MENU -->
+            <div id="test-menu" class="hidden-page w-full flex flex-col gap-4 w-full mt-4 animate-fade-in">
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center mb-2">Chọn Kiểu Test</h3>
                 <button onclick="startApp('test', 'micro')" class="menu-btn !text-gray-700 hover:!text-[#5B73E8]">Micro - Testing</button>
                 <button onclick="startApp('test', 'extreme')" class="menu-btn !text-gray-700 hover:!text-[#5B73E8]">Extreme Mock</button>
                 <button onclick="showMenu('main-nav')" class="mt-4 text-sm text-gray-400 font-medium">← Quay lại</button>
             </div>
 
-            <div id="learn-menu" class="hidden-page w-full flex flex-col gap-4 w-full mt-4">
+            <!-- LEARN MENU -->
+            <div id="learn-menu" class="hidden-page w-full flex flex-col gap-4 w-full mt-4 animate-fade-in">
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest text-center mb-2">Chọn Kiểu Học</h3>
                 <button onclick="startApp('learn', 'vocab')" class="menu-btn !text-gray-700 hover:!text-[#5B73E8]">Vocabulary Focus</button>
                 <button onclick="startApp('learn', 'grammar')" class="menu-btn !text-gray-700 hover:!text-[#5B73E8]">Grammar Focus</button>
@@ -133,8 +147,8 @@
         </div>
     </div>
 
-    <div id="quiz-page" class="hidden-page app-container bg-white">
-        
+    <!-- QUIZ PAGE -->
+    <div id="quiz-page" class="hidden-page app-container bg-white animate-fade-in">
         <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
             <button onclick="goHome()" class="text-xl text-gray-400 hover:text-gray-700 px-2">←</button>
             <div id="timer-display" class="font-bold text-[#5B73E8] bg-blue-50 px-3 py-1 rounded-full text-sm hidden">TIME 00:00</div>
@@ -160,30 +174,31 @@
             <div id="hint-text" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-gray-700 hidden"></div>
 
             <div class="flex justify-between items-center mt-auto pt-4">
-                <div class="flex gap-2">
+                <div class="flex gap-2" id="support-tools">
                     <button id="btn-5050" onclick="use5050()" class="w-12 h-12 rounded-full border border-gray-300 text-gray-500 font-bold flex items-center justify-center hover:bg-gray-50 transition-colors">50%</button>
-                    <button id="btn-suggest" onclick="showHint()" class="px-5 py-2 rounded-full border border-gray-300 text-gray-600 font-bold hover:bg-gray-50 transition-colors">Suggest</button>
+                    <!-- Nút Suggest Toggle -->
+                    <button id="btn-suggest" onclick="toggleHint()" class="px-5 py-2 rounded-full border border-gray-300 text-gray-600 font-bold hover:bg-gray-50 transition-colors">Suggest</button>
                 </div>
                 <button id="btn-next" onclick="nextQuestion()" class="bg-[#1A202C] text-white px-8 py-3 rounded-full font-bold hidden hover:bg-black transition-colors shadow-md">Tiếp tục</button>
             </div>
         </div>
     </div>
 
-    <div id="result-page" class="hidden-page app-container bg-[#F9FAFB]">
+    <!-- RESULT PAGE -->
+    <div id="result-page" class="hidden-page app-container bg-[#F9FAFB] animate-fade-in">
         <div class="curved-header flex flex-col items-center justify-center min-h-[25vh]">
             <h2 class="text-xl font-bold opacity-90 tracking-widest mb-1 uppercase" id="score-label">TỔNG ĐIỂM</h2>
             <h1 id="final-score" class="text-6xl font-bold">0</h1>
         </div>
 
         <div class="flex-1 p-6 flex flex-col items-center">
-            
-            <div id="tier-tag" class="px-6 py-2 rounded-full font-bold text-sm mb-6 tracking-wide hidden text-white mt-4 shadow-sm"></div>
+            <div id="tier-tag" class="px-6 py-2 rounded-full font-bold text-sm mb-6 tracking-wide hidden text-white mt-4 shadow-sm animate-pop"></div>
 
-            <div id="detailed-feedback-container" class="w-full bg-white rounded-2xl p-5 mb-6 shadow-sm border border-gray-100 hidden">
+            <div id="detailed-feedback-container" class="w-full bg-white rounded-2xl p-5 mb-6 shadow-sm border border-gray-100 hidden animate-fade-in" style="animation-delay: 0.2s;">
                 <p id="detailed-feedback" class="text-gray-600 text-sm leading-relaxed text-center font-medium"></p>
             </div>
             
-            <div id="stats-breakdown" class="w-full flex gap-4 mb-8 text-center hidden">
+            <div id="stats-breakdown" class="w-full flex gap-4 mb-8 text-center hidden animate-fade-in" style="animation-delay: 0.4s;">
                 <div class="bg-white p-4 rounded-2xl flex-1 border border-gray-100 shadow-sm">
                     <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Từ vựng</p>
                     <p id="stat-vocab" class="text-xl font-bold text-[#5B73E8]">0/0</p>
@@ -195,13 +210,14 @@
             </div>
 
             <div class="w-full flex flex-col gap-3 mt-auto">
-                <button id="btn-review" onclick="showReview()" class="bg-[#5B73E8] text-white w-full py-4 rounded-xl font-bold text-[1rem] hover:opacity-90 transition-opacity shadow-md hidden">Review câu sai</button>
+                <button id="btn-review" onclick="showReview()" class="bg-[#5B73E8] text-white w-full py-4 rounded-xl font-bold text-[1rem] hover:opacity-90 transition-opacity shadow-md hidden animate-fade-in" style="animation-delay: 0.6s;">Review câu sai</button>
                 <button onclick="goHome()" class="bg-white border border-gray-200 text-gray-600 w-full py-4 rounded-xl font-bold text-[1rem] hover:bg-gray-50 transition-colors shadow-sm">Về trang chủ</button>
             </div>
         </div>
     </div>
 
-    <div id="review-page" class="hidden-page app-container bg-[#F9FAFB]">
+    <!-- REVIEW PAGE -->
+    <div id="review-page" class="hidden-page app-container bg-[#F9FAFB] animate-fade-in">
         <div class="bg-white border-b border-gray-100 p-4 flex items-center justify-between z-10 shadow-sm">
             <h2 class="font-bold text-[1rem] text-gray-800">Review Câu Sai</h2>
             <button onclick="closeReview()" class="text-[#5B73E8] font-bold text-sm bg-blue-50 px-3 py-1 rounded-full">Đóng</button>
@@ -258,10 +274,22 @@
                     if (Array.isArray(data[key])) extractedArray = extractedArray.concat(data[key]);
                 }
             }
+            
+            // THUẬT TOÁN LỌC TRÙNG LẶP (Deduplication)
+            let uniqueSet = new Set();
             return extractedArray.filter(q => {
                 let questionKey = Object.keys(q).find(k => k.toLowerCase().includes('question') || k.toLowerCase().includes('cauhoi'));
                 let rawQuestion = questionKey ? q[questionKey] : Object.values(q).find(v => typeof v === 'string' && v.includes('___'));
-                return rawQuestion && String(rawQuestion).trim() !== "";
+                
+                if (!rawQuestion || String(rawQuestion).trim() === "") return false;
+                
+                // Chuẩn hóa string để đối chiếu (Xóa số thứ tự, gạch dưới, đổi thành chữ thường)
+                let cleanString = String(rawQuestion).replace(/^(Sample\s*)?Question\s*\d+:\s*/i, '').replace(/[-_]{3,}/g, '_____').trim().toLowerCase();
+                
+                if (uniqueSet.has(cleanString)) return false; // Phát hiện trùng -> Loại bỏ ngay
+                
+                uniqueSet.add(cleanString); // Thêm vào danh sách câu hỏi độc nhất
+                return true;
             }).map(q => ({ ...q, _questionType: typeTag }));
         }
 
@@ -290,9 +318,12 @@
             let gCount = 0;
             
             let timerDisplay = document.getElementById('timer-display');
+            let supportTools = document.getElementById('support-tools');
             
             if (category === 'test') {
                 timerDisplay.classList.remove('hidden');
+                // ẨN HOÀN TOÀN TÍNH NĂNG 50/50 VÀ SUGGEST KHI VÀO TEST
+                supportTools.classList.add('hidden');
                 document.getElementById('btn-next').classList.remove('ml-auto'); 
                 document.getElementById('btn-next').classList.add('w-full');
                 
@@ -302,6 +333,7 @@
                 timerDisplay.className = "font-bold text-[#5B73E8] bg-blue-50 px-3 py-1 rounded-full text-sm";
             } else if (category === 'learn') {
                 timerDisplay.classList.add('hidden');
+                supportTools.classList.remove('hidden');
                 document.getElementById('btn-next').classList.add('ml-auto');
                 document.getElementById('btn-next').classList.remove('w-full');
                 
@@ -401,7 +433,7 @@
                 optionsHtml += `
                     <button onclick="selectAnswer(this, ${isThisBtnCorrect}, '${q._questionType}', '${safeOpt}', '${safeCorrectText}')" 
                             data-correct="${isThisBtnCorrect}" 
-                            class="option-btn">
+                            class="option-btn hover:border-gray-400">
                         ${optText}
                     </button>
                 `;
@@ -411,13 +443,23 @@
             q._displayHint = hintKey ? q[hintKey] : "Không có giải thích chi tiết.";
 
             document.getElementById('options-container').innerHTML = optionsHtml;
-            document.getElementById('feedback-area').classList.add('hidden');
-            document.getElementById('btn-next').classList.add('hidden');
-            document.getElementById('hint-text').classList.add('hidden');
             
-            let btn5050 = document.getElementById('btn-5050');
-            btn5050.disabled = false;
-            btn5050.classList.remove('opacity-50', 'pointer-events-none');
+            // Xóa state animation của câu hỏi trước
+            let feedback = document.getElementById('feedback-area');
+            feedback.classList.add('hidden');
+            feedback.classList.remove('animate-pop');
+
+            let hintEl = document.getElementById('hint-text');
+            hintEl.classList.add('hidden');
+            hintEl.classList.remove('animate-pop');
+
+            document.getElementById('btn-next').classList.add('hidden');
+            
+            if(appCategory === 'learn') {
+                let btn5050 = document.getElementById('btn-5050');
+                btn5050.disabled = false;
+                btn5050.classList.remove('opacity-50', 'pointer-events-none');
+            }
         }
 
         function selectAnswer(btnElement, isCorrect, questionType, userSelectedText, correctText) {
@@ -439,6 +481,7 @@
             let btns = document.querySelectorAll('.option-btn');
             btns.forEach(b => {
                 b.disabled = true;
+                b.classList.remove('hover:border-gray-400');
                 if(b.getAttribute('data-correct') === 'true') {
                     b.classList.add('option-correct');
                 } else if(b === btnElement && !isCorrect) {
@@ -448,12 +491,19 @@
 
             let feedback = document.getElementById('feedback-area');
             feedback.classList.remove('hidden');
+            
+            // Trigger animation nảy nhẹ
+            feedback.style.animation = 'none';
+            feedback.offsetHeight; 
+            feedback.style.animation = null;
+            feedback.classList.add('animate-pop');
+
             if(isCorrect) {
                 feedback.innerText = "CHÍNH XÁC";
-                feedback.className = "w-full py-4 rounded-xl font-bold text-white mb-4 bg-[#10B981]";
+                feedback.className = "w-full py-4 rounded-xl font-bold text-white mb-4 bg-[#10B981] animate-pop pointer-events-none";
             } else {
                 feedback.innerText = "KHÔNG CHÍNH XÁC";
-                feedback.className = "w-full py-4 rounded-xl font-bold text-white mb-4 bg-[#EF4444]";
+                feedback.className = "w-full py-4 rounded-xl font-bold text-white mb-4 bg-[#EF4444] animate-pop pointer-events-none";
             }
 
             document.getElementById('btn-next').classList.remove('hidden');
@@ -481,12 +531,18 @@
             btn5050.classList.add('opacity-50', 'pointer-events-none');
         }
 
-        function showHint() {
-            // Hiển thị gợi ý vô điều kiện khi bấm nút
-            let q = currentSessionQuestions[currentIndex];
+        // TÍNH NĂNG BẬT TẮT (TOGGLE) SUGGEST
+        function toggleHint() {
             let hintEl = document.getElementById('hint-text');
-            hintEl.innerText = q._displayHint;
-            hintEl.classList.remove('hidden');
+            if(hintEl.classList.contains('hidden')) {
+                let q = currentSessionQuestions[currentIndex];
+                hintEl.innerText = q._displayHint;
+                hintEl.classList.remove('hidden');
+                hintEl.classList.add('animate-pop');
+            } else {
+                hintEl.classList.add('hidden');
+                hintEl.classList.remove('animate-pop');
+            }
         }
 
         function startTimer() {
@@ -512,6 +568,25 @@
             }, 1000);
         }
 
+        // ANIMATION SỐ NHẢY TỪ 0 ĐẾN ĐIỂM THẬT
+        function animateScore(element, targetScore, suffix = "", duration = 1500) {
+            let startTime = null;
+            function updateCounter(currentTime) {
+                if (!startTime) startTime = currentTime;
+                let progress = (currentTime - startTime) / duration;
+                if (progress > 1) progress = 1;
+                // Hiệu ứng chậm dần về đích (easeOutExpo)
+                let currentVal = Math.floor(targetScore * (progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress)));
+                element.innerText = currentVal + suffix;
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.innerText = targetScore + suffix;
+                }
+            }
+            requestAnimationFrame(updateCounter);
+        }
+
         function endSession() {
             clearInterval(timerInterval);
             document.getElementById('quiz-page').classList.add('hidden-page');
@@ -525,9 +600,14 @@
             document.getElementById('stats-breakdown').classList.add('hidden');
             document.getElementById('btn-review').classList.add('hidden');
 
+            // Reset score element
+            let scoreEl = document.getElementById('final-score');
+            scoreEl.innerText = "0"; 
+
             if (appCategory === 'learn') {
                 document.getElementById('score-label').innerText = "HOÀN THÀNH";
-                document.getElementById('final-score').innerText = `${totalCorrect}/${totalQs}`;
+                // Chạy hiệu ứng cho Learn Mode (đếm đến số câu đúng)
+                animateScore(scoreEl, totalCorrect, `/${totalQs}`);
             } else {
                 let finalScore = 0;
                 let tierTag = document.getElementById('tier-tag');
@@ -539,26 +619,29 @@
                 if (appMode === 'micro') {
                     finalScore = totalCorrect * 2;
                     document.getElementById('score-label').innerText = "THANG ĐIỂM 100";
-                    if (finalScore < 40) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#EF4444] text-white mb-6 mt-4 shadow-sm"; }
-                    else if (finalScore <= 60) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#F59E0B] text-white mb-6 mt-4 shadow-sm"; }
-                    else if (finalScore <= 70) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#FBBF24] text-black mb-6 mt-4 shadow-sm"; }
-                    else if (finalScore <= 80) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#3B82F6] text-white mb-6 mt-4 shadow-sm"; }
-                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#10B981] text-white mb-6 mt-4 shadow-sm"; }
+                    if (finalScore < 40) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#EF4444] text-white mb-6 mt-4 shadow-sm animate-pop"; }
+                    else if (finalScore <= 60) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#F59E0B] text-white mb-6 mt-4 shadow-sm animate-pop"; }
+                    else if (finalScore <= 70) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#FBBF24] text-black mb-6 mt-4 shadow-sm animate-pop"; }
+                    else if (finalScore <= 80) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#3B82F6] text-white mb-6 mt-4 shadow-sm animate-pop"; }
+                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#10B981] text-white mb-6 mt-4 shadow-sm animate-pop"; }
                     document.getElementById('detailed-feedback').innerText = "Hoàn thành bài Micro-testing. Hãy duy trì nhịp độ làm bài mỗi ngày để giữ cảm giác đọc hiểu.";
                 } else {
                     finalScore = totalCorrect * 5;
                     document.getElementById('score-label').innerText = "THANG ĐIỂM 1000";
-                    if (finalScore < 400) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#EF4444] text-white mb-6 mt-4 shadow-sm"; }
-                    else if (finalScore <= 545) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#F59E0B] text-white mb-6 mt-4 shadow-sm"; }
-                    else if (finalScore <= 645) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#FBBF24] text-black mb-6 mt-4 shadow-sm"; }
-                    else if (finalScore <= 845) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#3B82F6] text-white mb-6 mt-4 shadow-sm"; }
-                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#10B981] text-white mb-6 mt-4 shadow-sm"; }
+                    if (finalScore < 400) { tierTag.innerText = "BÁO ĐỘNG"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#EF4444] text-white mb-6 mt-4 shadow-sm animate-pop"; }
+                    else if (finalScore <= 545) { tierTag.innerText = "LƯU Ý"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#F59E0B] text-white mb-6 mt-4 shadow-sm animate-pop"; }
+                    else if (finalScore <= 645) { tierTag.innerText = "TẠM ỔN"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#FBBF24] text-black mb-6 mt-4 shadow-sm animate-pop"; }
+                    else if (finalScore <= 845) { tierTag.innerText = "KHÁ"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#3B82F6] text-white mb-6 mt-4 shadow-sm animate-pop"; }
+                    else { tierTag.innerText = "TỐT"; tierTag.className = "px-6 py-2 rounded-full font-bold text-sm tracking-wide bg-[#10B981] text-white mb-6 mt-4 shadow-sm animate-pop"; }
                     document.getElementById('detailed-feedback').innerText = "Bài test sức bền kết thúc. Bạn đã làm rất tốt, hãy review kỹ các câu sai để không lặp lại lỗi ở phòng thi thật.";
                 }
 
-                document.getElementById('final-score').innerText = finalScore;
-                document.getElementById('stat-vocab').innerText = `${scoreData.vocab.correct}/${scoreData.vocab.total}`;
-                document.getElementById('stat-grammar').innerText = `${scoreData.grammar.correct}/${scoreData.grammar.total}`;
+                // Chạy hiệu ứng điểm tổng quát
+                animateScore(scoreEl, finalScore);
+                
+                // Chạy hiệu ứng điểm thành phần
+                animateScore(document.getElementById('stat-vocab'), scoreData.vocab.correct, `/${scoreData.vocab.total}`, 1000);
+                animateScore(document.getElementById('stat-grammar'), scoreData.grammar.correct, `/${scoreData.grammar.total}`, 1000);
             }
         }
 
