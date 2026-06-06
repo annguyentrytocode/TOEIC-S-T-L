@@ -153,15 +153,14 @@
             grammar: { correct: 0, total: 0 }
         };
         
-        let appCategory = ''; // 'test' or 'learn'
-        let appMode = '';     // 'micro', 'extreme', 'vocab', 'grammar'
+        let appCategory = '';
+        let appMode = '';
         let timerInterval;
         let secondsElapsed = 0;
         let timeLimit = 0;
         let hasAnsweredCurrent = false;
 
         window.onload = () => {
-            // Đọc đúng định dạng tên file bạn yêu cầu
             Promise.all([
                 fetch('vocab.json').then(res => res.json()).catch(() => []),
                 fetch('gramar.json').then(res => res.json()).catch(() => []) 
@@ -229,7 +228,6 @@
             let vCount = 0;
             let gCount = 0;
             
-            // Cấu hình UI theo chế độ
             let timerDisplay = document.getElementById('timer-display');
             let supportTools = document.getElementById('support-tools');
             let progressBar = document.getElementById('progress-bar');
@@ -237,7 +235,7 @@
             if (category === 'test') {
                 timerDisplay.classList.remove('hidden');
                 supportTools.classList.add('hidden');
-                document.getElementById('btn-next').classList.add('w-full'); // Nút next full width khi test
+                document.getElementById('btn-next').classList.add('w-full');
                 
                 if (mode === 'micro') {
                     vCount = 25; gCount = 25;
@@ -251,7 +249,7 @@
                     timerDisplay.className = "font-bold text-red-600 bg-red-100 px-4 py-1 rounded-full";
                 }
             } else if (category === 'learn') {
-                timerDisplay.classList.add('hidden'); // Ẩn thời gian để học thoải mái
+                timerDisplay.classList.add('hidden');
                 supportTools.classList.remove('hidden');
                 document.getElementById('btn-next').classList.remove('w-full');
                 progressBar.className = "bg-blue-500 h-1.5 rounded-full transition-all duration-100";
@@ -296,6 +294,7 @@
             let tagEl = document.getElementById('question-tag');
             tagEl.innerText = q._questionType === 'vocab' ? "Từ vựng" : "Ngữ pháp";
             
+            // Xử lý câu hỏi
             let questionKey = Object.keys(q).find(k => k.toLowerCase().includes('question') || k.toLowerCase().includes('cauhoi'));
             let rawQuestion = questionKey ? q[questionKey] : Object.values(q).find(v => typeof v === 'string' && v.includes('___'));
             let cleanQuestion = String(rawQuestion).replace(/^(Sample\s*)?Question\s*\d+:\s*/i, '');
@@ -303,6 +302,7 @@
             q._displayQuestion = cleanQuestion.replace(/[-_]{3,}/g, '_____'); 
             document.getElementById('question-text').innerHTML = cleanQuestion.replace(/[-_]{3,}/g, '<span class="inline-block w-16 border-b-2 border-black"></span>');
             
+            // Lấy danh sách đáp án
             let validOptions = [];
             let excludeKeywords = ['question', 'correct', 'hint', 'answer', 'hướng dẫn', 'giải thích', 'câu', 'gợi', 'suggest', '_questiontype', 'explanation', '_displayquestion', '_displayhint'];
             
@@ -318,34 +318,59 @@
             
             let finalOptions = validOptions.length > 4 ? validOptions.sort((a, b) => a.keyOriginal.length - b.keyOriginal.length).slice(0, 4) : validOptions;
 
+            // XỬ LÝ LỖI LOGIC: TÌM CHÍNH XÁC ĐÁP ÁN ĐÚNG
             let correctKey = Object.keys(q).find(k => k.toLowerCase().includes('correct') || k.toLowerCase().includes('answer') || k.toLowerCase().includes('dapan') || k.toLowerCase().includes('đáp'));
             let correctKeyFromExcel = correctKey ? String(q[correctKey]).trim().toLowerCase() : "";
+            let actualCorrectText = correctKeyFromExcel;
 
-            let actualCorrectText = correctKeyFromExcel; 
-            for(let k in q) {
-                if (k.trim().toLowerCase() === correctKeyFromExcel) {
-                    actualCorrectText = String(q[k]).trim().toLowerCase();
-                    break;
+            // Xử lý thông minh nếu người dùng chỉ nhập "A", "B", "C", "D" vào cột đáp án
+            if (correctKeyFromExcel.length === 1 && ['a', 'b', 'c', 'd'].includes(correctKeyFromExcel)) {
+                for(let k in q) {
+                    let cleanK = k.trim().toLowerCase();
+                    // Mapping "A" => "Option A", "Lựa chọn A", v.v.
+                    if (cleanK === correctKeyFromExcel || cleanK === `option ${correctKeyFromExcel}` || cleanK.endsWith(` ${correctKeyFromExcel}`)) {
+                        actualCorrectText = String(q[k]).trim().toLowerCase();
+                        break;
+                    }
                 }
             }
 
-            let optionsHtml = '';
-            let correctTextSaved = "Không rõ";
+            // Chốt trước dòng text hiển thị trên nút đúng để lưu vào Review
+            let correctTextSaved = actualCorrectText;
+            finalOptions.forEach(optObj => {
+                let cleanOptKey = optObj.keyOriginal.trim().toLowerCase();
+                let cleanOptText = optObj.text.toLowerCase();
+                if (cleanOptKey === correctKeyFromExcel || 
+                    cleanOptKey === `option ${correctKeyFromExcel}` || 
+                    cleanOptKey.endsWith(` ${correctKeyFromExcel}`) || 
+                    cleanOptText === correctKeyFromExcel || 
+                    cleanOptText === actualCorrectText) {
+                    correctTextSaved = optObj.text;
+                }
+            });
 
+            // Render nút đáp án
+            let optionsHtml = '';
             shuffle([...finalOptions]).forEach(optObj => {
                 let optText = optObj.text;
+                let cleanOptKey = optObj.keyOriginal.trim().toLowerCase();
+                let cleanOptText = optText.toLowerCase();
                 let isThisBtnCorrect = false;
                 
-                if (optObj.keyOriginal.trim().toLowerCase() === correctKeyFromExcel || 
-                    optText.toLowerCase() === correctKeyFromExcel || 
-                    optText.toLowerCase() === actualCorrectText) {
+                // Thuật toán quét đối chiếu chính xác hoàn toàn
+                if (cleanOptKey === correctKeyFromExcel || 
+                    cleanOptKey === `option ${correctKeyFromExcel}` || 
+                    cleanOptKey.endsWith(` ${correctKeyFromExcel}`) || 
+                    cleanOptText === correctKeyFromExcel || 
+                    cleanOptText === actualCorrectText) {
                     isThisBtnCorrect = true;
-                    correctTextSaved = optText;
                 }
 
-                let safeOpt = optText.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                let safeOpt = optText.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, " ");
+                let safeCorrectText = correctTextSaved.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, " ");
+                
                 optionsHtml += `
-                    <button onclick="selectAnswer(this, ${isThisBtnCorrect}, '${q._questionType}', '${safeOpt}', '${correctTextSaved.replace(/'/g, "\\'")}')" 
+                    <button onclick="selectAnswer(this, ${isThisBtnCorrect}, '${q._questionType}', '${safeOpt}', '${safeCorrectText}')" 
                             data-correct="${isThisBtnCorrect}" 
                             class="option-btn w-full text-left p-4 rounded-xl border-2 border-gray-200 text-lg font-medium hover:border-blue-500 transition-colors bg-white">
                         ${optText}
@@ -353,6 +378,7 @@
                 `;
             });
             
+            // Xử lý phần Suggest/Hint
             let hintKey = Object.keys(q).find(k => k.toLowerCase().includes('explanation') || k.toLowerCase().includes('hint') || k.toLowerCase().includes('giải'));
             q._displayHint = hintKey ? q[hintKey] : "Không có giải thích chi tiết.";
 
@@ -463,7 +489,7 @@
                 let s = (remaining % 60).toString().padStart(2, '0');
                 document.getElementById('timer-display').innerText = `TIME ${m}:${s}`;
                 
-                if(remaining < 300) { // Cảnh báo 5 phút cuối
+                if(remaining < 300) {
                     document.getElementById('timer-display').classList.add('bg-red-600', 'text-white');
                     document.getElementById('timer-display').classList.remove('bg-yellow-100', 'text-yellow-600', 'bg-red-100', 'text-red-600');
                 }
@@ -495,7 +521,6 @@
             let totalCorrect = scoreData.vocab.correct + scoreData.grammar.correct;
             let totalQs = scoreData.vocab.total + scoreData.grammar.total;
             
-            // Xóa rỗng các trường để set lại
             document.getElementById('tier-tag').classList.add('hidden');
             document.getElementById('detailed-feedback-container').classList.add('hidden');
             document.getElementById('stats-breakdown').classList.add('hidden');
@@ -504,11 +529,9 @@
             circle.className = "w-40 h-40 border-8 rounded-full flex flex-col items-center justify-center mb-4 relative border-gray-600";
 
             if (appCategory === 'learn') {
-                // Chế độ Learn chỉ hiển thị điểm đơn giản
                 document.getElementById('score-label').innerText = "HOÀN THÀNH";
                 document.getElementById('final-score').innerText = `${totalCorrect}/${totalQs}`;
             } else {
-                // Chế độ Test tính điểm phức tạp và hiển thị Review
                 let finalScore = 0;
                 let tierTag = document.getElementById('tier-tag');
                 tierTag.classList.remove('hidden');
@@ -599,7 +622,7 @@
             document.getElementById('result-page').classList.add('hidden-page');
             document.getElementById('review-page').classList.add('hidden-page');
             document.getElementById('home-page').classList.remove('hidden-page');
-            showMenu('main-nav'); // Mặc định mở lại màn hình chọn chính
+            showMenu('main-nav'); 
         }
     </script>
 </body>
